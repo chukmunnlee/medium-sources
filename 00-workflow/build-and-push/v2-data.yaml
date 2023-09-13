@@ -1,0 +1,73 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cosign-keys
+  namespace: playground
+type: Opaque
+immutable: true
+data:
+  cosign.pub: __COSIGN_PUB__
+  cosign.key: __COSIGN_KEY__
+  # or environment variable COSIGN_PASSWORD
+  cosign.password: __COSIGN_KEY_PASSWORD__
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-secret
+  namespace: playground
+type: Opaque
+data:
+  config.json: __DOCKER_CREDENTIALS__
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: artifact-secret
+  namespace: playground
+type: Opaque
+data:
+  accessKey: __S3_ACCESS_KEY__
+  secretKey: __S3_SECRET_KEY__
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-secret
+  namespace: playground
+data:
+  github-token: __GITHUB_TOKEN__
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: artifact-repositories
+  namespace: playground
+  annotations:
+    workflows.argoproj.io/default-artifact-repository: dospaces
+data:
+  dospaces: |
+    archiveLogs: false
+    s3:
+      endpoint: __S3_ENDPOINT__
+      bucket: __BUCKET_NAME__
+      region: __REGION__
+      accessKeySecret:
+        name: artifact-secret
+        key: accessKey
+      secretKeySecret:
+        name: artifact-secret
+        key: secretKey
+
+    dov-src: |
+      git:
+        repo: https://github.com/chukmunnlee/dov-bear.git
+        depth: 1
+        singleBranch: true
+        revision: HEAD
+        branch: master
+

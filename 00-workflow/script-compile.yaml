@@ -1,0 +1,63 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: script-compile-wf-
+  namespace: playground
+spec:
+  serviceAccountName: playground-sa
+  arguments:
+    parameters:
+    - name: os_arch
+      value: |
+        [
+          { "goos": "linux", "goarch": "amd64" },
+          { "goos": "windows", "goarch": "amd64" },
+          { "goos": "darwin", "goarch": "arm64" }
+        ]
+  entrypoint: main
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: os_arch
+    steps:
+    - - name: compile
+        arguments:
+          parameters:
+          - name: goos
+            value: "{{ item.goos }}"
+          - name: goarch
+            value: "{{ item.goarch }}"
+        withParam: "{{ inputs.parameters.os_arch }}"
+        template: compile-fortune-app
+
+  - name: compile-fortune-app
+    inputs:
+      parameters:
+      - name: goos
+      - name: goarch
+      artifacts:
+      - name: fortune-src
+        git:
+          repo: https://github.com/chukmunnlee/go-fortune.git
+          depth: 1
+        path: /src
+    outputs:
+      artifacts:
+      - name: r2
+        path: /src/release
+        s3:
+          key: "fortune-{{ inputs.parameters.goos }}-{{ inputs.parameters.goarch }}.tgz"
+
+    script:
+      image: golang:1.20
+      imagePullPolicy: IfNotPresent
+      workingDir: /src
+      command: [ "/bin/sh" ]
+      source: |
+        echo "Building GOOS: {{ inputs.parameters.goos }}, GOARCH: {{ inputs.parameters.goarch }}" &&
+        mkdir release &&
+        CGO_ENABLED=0 GOOS="{{ inputs.parameters.goos }}" GOARCH="{{ inputs.parameters.goarch }}" \
+            go build -v -o release/fortune ./... &&
+        cp -r static views fortune.txt release 

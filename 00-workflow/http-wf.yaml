@@ -1,0 +1,102 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: http-wf-
+  namespace: playground
+spec:
+  arguments:
+    parameters:
+    - name: apiKey
+    - name: city
+      value: singapore
+    - name: slackWebhook
+  serviceAccountName: playground-sa
+  entrypoint: main
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: apiKey
+      - name: city
+      - name: slackWebhook
+    dag:
+      tasks:
+      - name: get-weather
+        arguments:
+          parameters:
+          - name: apiKey
+            value: "{{ inputs.parameters.apiKey }}"
+          - name: city
+            value: "{{ inputs.parameters.city }}"
+        template: openweathermap
+      - name: extract-weather-json
+        arguments:
+          parameters:
+          - name: weather-result
+            value: "{{ tasks.get-weather.outputs.result }}"
+        template: filter-weather
+        dependencies: [ get-weather ]
+      - name: echo-result
+        arguments:
+          parameters:
+          - name: text
+            value: "{{ tasks.extract-weather-json.outputs.result }}"
+        template: whalesay
+        dependencies: [ extract-weather-json ]
+      - name: send-to-slack
+        arguments:
+          parameters:
+          - name: text
+            value: "{{ tasks.echo-result.outputs.result }}"
+          - name: city
+            value: "{{ inputs.parameters.city }}"
+          - name: slackWebhook
+            value: "{{ inputs.parameters.slackWebhook }}"
+        template: slack-notify
+        dependencies: [ echo-result ]
+
+  - name: openweathermap
+    inputs:
+      parameters:
+      - name: apiKey
+      - name: city
+    http:
+      method: GET
+      url: "https://api.openweathermap.org/data/2.5/weather?units=metric&q={{ inputs.parameters.city }}&appid={{ inputs.parameters.apiKey }}"
+      successCondition: response.statusCode == 200
+  - name: filter-weather
+    inputs:
+      parameters:
+      - name: weather-result
+    script:
+      image: nicolaka/netshoot
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh" ]
+      source: |
+        echo '{{ inputs.parameters.weather-result }}' | jq '.weather[] | [.main, .description] | join(", ")'
+  - name: whalesay
+    inputs:
+      parameters:
+      - name: text
+    container:
+      image: docker/whalesay
+      imagePullPolicy: IfNotPresent
+      command: [ "cowsay" ]
+      args: [ "{{ inputs.parameters.text }}" ]
+  - name: slack-notify
+    inputs:
+      parameters:
+      - name: text
+      - name: city
+      - name: slackWebhook
+    container: 
+      image: grafana/slack-notify
+      imagePullPolicy: IfNotPresent
+      env:
+      - name: SLACK_WEBHOOK
+        value: "{{ inputs.parameters.slackWebhook }}"
+      - name: SLACK_TITLE
+        value: "Weather: {{ inputs.parameters.city }}"
+      - name: SLACK_MESSAGE
+        value: "{{ inputs.parameters.text }}"

@@ -1,0 +1,49 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: script-resize-wf-
+  namespace: playground
+spec:
+  serviceAccountName: playground-sa
+  artifactRepositoryRef:
+    key: dospaces-uncomp
+  arguments:
+    parameters:
+    - name: directory
+      value: convert
+    - name: imageName
+      value: dilbert.gif
+    - name: dimension
+      value: 128x128
+  entrypoint: main
+
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: directory
+      - name: imageName
+      - name: dimension
+      artifacts:
+      - name: dioc
+        path: /mnt
+        s3:
+          key: "{{ inputs.parameters.directory }}"
+    outputs:
+      artifacts:
+      - name: dioc
+        path: /mnt/resized
+        subPath: "{{ inputs.parameters.dimension}}-{{ inputs.parameters.imageName }}"
+        s3:
+          key: "{{ inputs.parameters.directory }}/resized/{{ inputs.parameters.dimension}}-{{ inputs.parameters.imageName }}.tgz"
+
+    script:
+      image: vulhub/imagemagick:7.1.0-49
+      imagePullPolicy: IfNotPresent
+      workingDir: /mnt
+      command: [ "/bin/bash" ]
+      source: |
+        mkdir -p resized &&
+        convert "{{ inputs.parameters.imageName }}" -resize "{{ inputs.parameters.dimension }}" "resized/{{ inputs.parameters.dimension}}-{{ inputs.parameters.imageName }}" 
+

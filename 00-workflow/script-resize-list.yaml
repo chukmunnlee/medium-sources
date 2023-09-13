@@ -1,0 +1,72 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: script-resize-wf-
+  namespace: playground
+spec:
+  serviceAccountName: playground-sa
+  artifactRepositoryRef:
+    key: dospaces-uncomp
+  arguments:
+    parameters:
+    - name: images
+      value: |
+        [
+          { 
+            "directory": "convert", 
+            "imageName": "dilbert.gif", 
+            "dimensions": "128x128 256x256 512x152 1024x1024"
+          }
+        ]
+  entrypoint: main
+
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: images
+    steps:
+    - - name: resize-image
+        arguments:
+          parameters:
+          - name: directory
+            value: "{{ item.directory }}"
+          - name: imageName
+            value: "{{ item.imageName }}"
+          - name: dimensions
+            value: "{{ item.dimensions }}"
+        withParam: "{{ inputs.parameters.images }}"
+        template: thumbnail
+
+  - name: thumbnail
+    inputs:
+      parameters:
+      - name: directory
+      - name: imageName
+      - name: dimensions
+      artifacts:
+      - name: storage
+        path: /mnt
+        s3:
+          key: "{{ inputs.parameters.directory }}"
+    outputs:
+      artifacts:
+      - name: storage
+        path: /mnt/resized
+        subPath: "{{ inputs.parameters.dimension}}-{{ inputs.parameters.imageName }}"
+        s3:
+          key: "{{ inputs.parameters.directory }}/resized/{{ inputs.parameters.imageName }}.tgz"
+
+    script:
+      image: vulhub/imagemagick:7.1.0-49
+      imagePullPolicy: IfNotPresent
+      workingDir: /mnt
+      command: [ "/bin/bash" ]
+      source: |
+        mkdir -p resized
+        set "{{ inputs.parameters.dimensions }}"
+        for IMG_DIM in $*; do 
+          convert "{{ inputs.parameters.imageName }}" -resize $IMG_DIM "resized/${IMG_DIM}-{{ inputs.parameters.imageName }}" 
+        done
+

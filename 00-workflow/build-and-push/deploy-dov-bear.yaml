@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dov-bear-deploy
+  namespace: playground
+  labels:
+    name: dov-bear-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: dov-bear-po
+  template:
+    metadata:
+      name: dov-bear-po
+      labels:
+        name: dov-bear-po
+    spec:
+      containers:
+      - name: dov-bear-container
+        image: chukmunnlee/dov-bear@some-hash
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: INSTANCE_NAME
+          value: dov-bear
+        - name: INSTANCE_HASH
+          value: git-commit
+        ports:
+        - containerPort: 3000

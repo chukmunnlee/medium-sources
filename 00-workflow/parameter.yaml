@@ -1,0 +1,13 @@
+images: |
+  [
+    { 
+      "directory": "convert", 
+      "imageName": "dilbert.gif", 
+      "dimensions": "128x128 256x256 512x152 1024x1024"
+    },
+    { 
+      "directory": "cover", 
+      "imageName": "倚天屠龍記.jpg", 
+      "dimensions": "512x152 1024x1024"
+    }
+  ]

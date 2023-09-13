@@ -1,0 +1,55 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: script-wf
+  namespace: playground
+spec: 
+  serviceAccountName: playground-sa
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: author
+      value: dickens
+    - name: title
+      value: great expectation
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: author
+      - name: title
+    script:
+      image: node:20
+      imagePullPolicy: IfNotPresent
+      command: [ 'node' ]
+      source: |
+
+        const fs = require('fs')
+
+        const author = '{{ inputs.parameters.author }}'
+        const title = '{{ inputs.parameters.title }}'
+        const filename = `${title}-${author}`
+
+        const query = encodeURI(`${author} ${title}`)
+
+        const endpoint = `https://gutendex.com/books/?search=${query}`
+
+        console.info(endpoint)
+
+        fetch(endpoint)
+          .then(result => result.json())
+          .then(result => result.results
+              .map(r => r.formats)
+              .map(r => {
+                for (let s in r)
+                  if (s.startsWith('text/plain'))
+                    return r[s]
+                return []
+              })
+          )
+          .then(result => result.flat(1)[0])
+          .then(result => fetch(result).then(result => result.text()))
+          .then(result => fs.promises.writeFile(filename, result))
+          .then(_ => console.info(`Completed: ${new Date()}`)) 
+          .catch(error => console.error('error ', error))

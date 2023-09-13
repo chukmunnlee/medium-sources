@@ -1,0 +1,11 @@
+Cloudflare R2
+	the endpoint does not encode the bucket name, so the bucket in the config map is the actual bucket name
+	do not need to configure region attribute
+
+DigitalOcean Spaces
+	the endpoint encodes the bucket name; the bucket attribute in the config map is the key inside the bucket
+		if you use this, then the bucket name attribute refers to the key within the bucket
+		eg. acme.sgp1.digitaloceanspaces.com 
+	remove the bucketname from the endpoint, and use the bucket attribute to specify the bucket
+		eg. sgp1.digitaloceanspaces.com 
+	need to configure region attribute

@@ -1,0 +1,212 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-container-wf-
+  namespace: playground
+
+spec:
+  serviceAccountName: playground-sa
+
+  artifactGC:
+    serviceAccountName: playground-sa
+    strategy: OnWorkflowCompletion
+
+  arguments:
+    parameters:
+    - name: imageName
+      value: argo-dov-bear
+    - name: revision
+      value: HEAD
+    - name: branch
+      value: master
+
+  entrypoint: main
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: imageName
+      - name: revision
+      - name: branch
+      artifacts:
+      - name: dov-src
+        git:
+          repo: https://github.com/chukmunnlee/dov-bear.git
+          depth: 1
+          singleBranch: true
+          revision: "{{ inputs.parameters.revision }}"
+          branch: "{{ inputs.parameters.branch }}"
+
+    dag:
+      tasks:
+      - name: get-short-hash
+        arguments:
+          parameters:
+          - name: revision
+            value: "{{ inputs.parameters.revision }}"
+          artifacts:
+          - name: dov-src
+            path: /src
+            from: "{{ inputs.artifacts.dov-src }}"
+        template: short-hash
+      - name: build-image
+        arguments:
+          parameters:
+          - name: imageName
+            value: "{{ inputs.parameters.imageName }}"
+          - name: hash
+            value: "{{ tasks.get-short-hash.outputs.result }}"
+          artifacts:
+          - name: dov-src
+            path: /src
+            from: "{{ inputs.artifacts.dov-src }}"
+        template: build-and-push-image
+        dependencies: [ get-short-hash ]
+      - name: get-sha-digest
+        arguments:
+          artifacts:
+          - name: metadata
+            from: "{{ tasks.build-image.outputs.artifacts.metadata }}"
+        template: get-sha
+        dependencies: [ build-image ]
+      - name: sign-container
+        arguments:
+          parameters:
+          - name: imageName
+            value: "{{ inputs.parameters.imageName }}"
+          - name: imageSha
+            value: "{{ tasks.get-sha-digest.outputs.result }}"
+        template: sign-container
+        dependencies: [ get-sha-digest ]
+
+      ## debug
+      - name: echo-hash
+        arguments:
+          parameters:
+          - name: hash
+            value: "{{ tasks.get-short-hash.outputs.result }}"
+        template: debug
+        dependencies: [ get-short-hash ]
+
+      - name: echo-sha-digest
+        arguments:
+          parameters:
+          - name: hash
+            value: "{{ tasks.get-sha-digest.outputs.result }}"
+        template: debug
+        dependencies: [ get-sha-digest ]
+
+  - name: short-hash
+    inputs:
+      parameters:
+      - name: revision
+      artifacts:
+      - name: dov-src
+        path: /src
+    container:
+      image: bitnami/git
+      imagePullPolicy: IfNotPresent
+      workingDir: /src
+      command:
+      - git
+      - rev-parse
+      - --short
+      - "{{ inputs.parameters.revision }}"
+
+  - name: build-and-push-image
+    inputs:
+      parameters:
+      - name: imageName
+      - name: hash
+      artifacts:
+      - name: dov-src
+        path: /src
+    outputs:
+      artifacts:
+      - name: metadata
+        path: /tmp/metadata.json
+    volumes:
+    - name: docker-cred-vol
+      secret:
+        secretName: docker-secret
+    container:
+      # https://github.com/moby/buildkit/issues/2441
+      #securityContext:
+      #  privileged: true
+      workingDir: /src/src/golang
+      image: moby/buildkit:v0.11.6-rootless
+      imagePullPolicy: IfNotPresent
+      env:
+      - name: BUILDKITD_FLAGS
+        value: --oci-worker-no-process-sandbox
+      - name: DOCKER_CONFIG
+        value: /.docker
+      command:
+      - buildctl-daemonless.sh
+      args:
+      - build
+      - --frontend
+      - dockerfile.v0
+      - --local
+      - context=.
+      - --local
+      - dockerfile=.
+      - --output
+      - "type=image,name=chukmunnlee/{{ inputs.parameters.imageName }}:{{ inputs.parameters.hash }},push=true"
+      - --metadata-file
+      - /tmp/metadata.json
+      volumeMounts:
+      - name: docker-cred-vol
+        mountPath: /.docker
+        readOnly: true
+
+  - name: get-sha
+    inputs:
+      artifacts:
+      - name: metadata
+        path: /tmp/metadata.json
+    script:
+      image: nicolaka/netshoot
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh" ]
+      source: |
+        cat /tmp/metadata.json | jq -r '."containerimage.digest"'
+
+  - name: sign-container
+    inputs:
+      parameters:
+      - name: imageName
+      - name: imageSha
+    volumes:
+    - name: docker-cred-vol
+      secret:
+        secretName: docker-secret
+    container:
+      image: bitnami/cosign:2
+      imagePullPolicy: IfNotPresent
+      command:
+      - cosign 
+      - sign
+      - --yes
+      - --key
+      - k8s://playground/cosign-keys
+      - "chukmunnlee/{{ inputs.parameters.imageName }}@{{ inputs.parameters.imageSha }}"
+      env:
+      - name: DOCKER_CONFIG
+        value: /.docker
+      volumeMounts:
+      - name: docker-cred-vol
+        mountPath: /.docker
+        readOnly: true
+
+  - name: debug
+    inputs:
+      parameters:
+      - name: hash
+    script:
+      image: busybox
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh" ]
+      source: |
+        echo ">>>> hash: {{ inputs.parameters.hash }}"
