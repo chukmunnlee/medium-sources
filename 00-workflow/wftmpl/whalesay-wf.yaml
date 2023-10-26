@@ -1,0 +1,48 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: whalesay-wf
+  namespace: playground
+  labels:
+    name: whalesay-wf
+spec:
+  serviceAccountName: playground-sa
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: message
+      value: "Calling calling from workflow"
+  templates:
+    - name: main
+      inputs:
+        parameters:
+        - name: message
+      dag:
+        tasks:
+        - name: invoke-whalesay-template
+          arguments:
+            parameters:
+            - name: message
+              value: "{{ inputs.parameters.message }}"
+          templateRef: 
+            name: whalesay-wftmpl
+            template: main
+        - name: echo-output
+          arguments:
+            parameters:
+            - name: text
+              value: "{{ tasks.invoke-whalesay-template.outputs.result }}"
+          template: echo-output
+          dependencies: [ invoke-whalesay-template ]
+
+    - name: echo-output
+      inputs:
+        parameters:
+        - name: text
+      script:
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: [ "/bin/sh" ]
+        source: |
+          echo "Output from templateRef: {{ inputs.parameters.text }}"
