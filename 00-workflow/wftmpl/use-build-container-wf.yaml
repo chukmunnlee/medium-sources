@@ -1,0 +1,69 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: use-build-container-wf
+  namespace: playground
+  labels:
+    name: use-build-container-wf
+spec:
+  serviceAccountName: playground-sa
+
+  arguments:
+    parameters:
+    - name: imageName
+      value: dov-bear
+    - name: hash
+      value: v1.0
+
+  entrypoint: main
+
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: imageName
+      - name: hash
+      artifacts:
+      - name: dov-src
+        git:
+          repo: https://github.com/chukmunnlee/dov-bear.git
+          depth: 1
+          singleBranch: true
+          revision: HEAD
+          branch: master
+    dag: 
+      tasks: 
+      - name: build-container
+        arguments:
+          parameters:
+          - name: imageName
+            value: "{{ inputs.parameters.imageName }}"
+          - name: hash
+            value: "{{ inputs.parameters.hash }}"
+          artifacts:
+          - name: dov-src
+            path: /src
+            from: "{{ inputs.artifacts.dov-src }}"
+        templateRef: 
+          name: build-container-wftmpl
+          template: build-and-push-image
+      - name: build-status
+        arguments:
+          parameters:
+          - name: text
+            value: "{{ tasks.build-container.status }}"
+        template: echo-status
+        dependencies: [ build-container ]
+
+  - name: echo-status
+    inputs:
+      parameters:
+      - name: text
+    script:
+      image: busybox
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh" ]
+      source: |
+        echo "Status: {{ inputs.parameters.text }}"
+
