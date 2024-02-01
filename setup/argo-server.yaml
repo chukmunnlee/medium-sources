@@ -646,6 +646,8 @@ spec:
                           type: object
                         securityToken:
                           type: string
+                        useSDKCreds:
+                          type: boolean
                       required:
                       - key
                       type: object
@@ -675,6 +677,17 @@ spec:
                           type: object
                         bucket:
                           type: string
+                        caSecret:
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                            optional:
+                              type: boolean
+                          required:
+                          - key
+                          type: object
                         createBucketIfNotPresent:
                           properties:
                             objectLocking:
@@ -1256,7 +1269,7 @@ spec:
         - server
         - --auth-mode=server
         env: []
-        image: quay.io/argoproj/argocli:v3.4.12
+        image: quay.io/argoproj/argocli:v3.5.4
         name: argo-server
         ports:
         - containerPort: 2746
@@ -1311,7 +1324,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.name
-        image: quay.io/argoproj/workflow-controller:v3.4.12
+        image: quay.io/argoproj/workflow-controller:v3.5.4
         livenessProbe:
           failureThreshold: 3
           httpGet:

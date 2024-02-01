@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: webhook-es
+  namespace: playground
+
+spec:
+  eventBusName: kafka-eb
+  webhook:
+    simple:
+      endpoint: /notify
+      port: "12000"
+      method: POST
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-svc
+  namespace: playground
+  labels:
+    app: webhook-svc
+spec:
+  type: ClusterIP
+  selector:
+    eventsource-name: webhook-es
+    owner-name: webhook-es
+  ports:
+  - name: 12000-12000
+    port: 12000
+    protocol: TCP
+    targetPort: 12000

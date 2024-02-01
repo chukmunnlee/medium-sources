@@ -1,0 +1,34 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+  namespace: playground
+
+spec:
+  nats:
+    native:
+      replicas: 3
+      auth: token
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: kafka-eb
+  namespace: playground
+
+spec:
+  kafka:
+    url: model-iguana-11813-us1-kafka.upstash.io:9092
+    topic: argo-kafka-eventbus
+    tls:
+      insecureSkipVerify: true
+    sasl: 
+      mechanism: SCRAM-SHA-256 
+      userSecret: 
+        name: kafka-secret
+        key: username
+      passwordSecret: 
+        name: kafka-secret
+        key: password
