@@ -2,19 +2,6 @@
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
 metadata:
-  name: default
-  namespace: playground
-
-spec:
-  nats:
-    native:
-      replicas: 3
-      auth: token
-
----
-apiVersion: argoproj.io/v1alpha1
-kind: EventBus
-metadata:
   name: kafka-eb
   namespace: playground
 
