@@ -58,3 +58,22 @@ spec:
   - port: 12000
     targetPort: 12000
 
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webhook-ing
+  namespace: playground
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: webhook-192.168.39.252.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webhook-svc
+            port:
+              number: 12000
