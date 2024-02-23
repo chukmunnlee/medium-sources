@@ -1,0 +1,7 @@
+[
+{"level":"info","ts":1708414490.0532098,"logger":"http.log.access.log0","msg":"handled request","request":{"remote_ip":"10.244.1.108","remote_port":"47868","client_ip":"10.244.1.108","proto":"HTTP/1.1","method":"POST","host":"httpbin-svc.playground.svc.cluster.local:8080","uri":"/post","headers":{"Accept-Encoding":["gzip"],"User-Agent":["Go-http-client/1.1"],"Content-Length":["88"]}},"bytes_read":88,"user_id":"","duration":0.005897046,"size":633,"status":200,"resp_headers":{"Server":["Caddy","gunicorn/19.9.0"],"Date":["Tue, 20 Feb 2024 07:34:50 GMT"],"Content-Type":["application/json"],"Content-Length":["633"],"Access-Control-Allow-Origin":["*"],"Access-Control-Allow-Credentials":["true"]}},
+
+
+{"level":"info","ts":1708414662.2061808,"logger":"http.log.access.log0","msg":"handled request","request":{"remote_ip":"10.244.1.234","remote_port":"50238","client_ip":"10.244.1.234","proto":"HTTP/1.1","method":"POST","host":"httpbin-svc.playground.svc.cluster.local:8080","uri":"/post","headers":{"Content-Type":["application/x-www-form-urlencoded"],"Accept-Encoding":["gzip"],"User-Agent":["Go-http-client/1.1"],"Content-Length":["88"]}},"bytes_read":88,"user_id":"","duration":0.002519242,"size":626,"status":200,"resp_headers":{"Access-Control-Allow-Origin":["*"],"Access-Control-Allow-Credentials":["true"],"Date":["Tue, 20 Feb 2024 07:37:42 GMT"],"Server":["Caddy","gunicorn/19.9.0"],"Content-Type":["application/json"],"Content-Length":["626"]}}
+
+]

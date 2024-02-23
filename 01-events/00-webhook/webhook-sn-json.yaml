@@ -1,0 +1,37 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook-sn
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  dependencies:
+  - name: message
+    eventSourceName: webhook-es
+    eventName: simple
+  triggers:
+  - template:
+      name: http-post
+      http:
+        url: http://shttpbin-svc.playground.svc.cluster.local:8080/post
+        method: POST
+        headers:
+          Content-Type: application/json
+        payload:
+        - src:
+            dependencyName: message
+            contextKey: datacontenttype
+          dest: content-type
+        - src:
+            dependencyName: message
+            dataKey: body.message.id
+          dest: id
+        - src:
+            dependencyName: message
+            dataKey: body.message.name
+          dest: name
+        - src:
+            dependencyName: message
+            dataKey: body.message.email
+          dest: email

@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shttpbin-deploy
+  namespace: playground
+  labels:
+    app: shttpbin
+    name: shttpbin-deploy
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shttpbin
+      name: shttpbin-po
+  template:
+    metadata:
+      name: shttpbin-po
+      labels:
+        app: shttpbin
+        name: shttpbin-po
+    spec:
+      containers:
+      - name: shttpbin-container
+        image: chukmunnlee/simple-httpbin:v2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: shttpbin-port 
+          containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shttpbin-svc
+  namespace: playground
+  labels:
+    app: shttpbin
+    name: shttpbin-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: shttpbin
+    name: shttpbin-po
+  ports:
+  - port: 8080
+    targetPort: shttpbin-port
