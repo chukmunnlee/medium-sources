@@ -29,8 +29,8 @@ spec:
       port: 9000
       targetPort: 9000
     - name: minio-web 
-      port: 9001
-      targetPort: 9001
+      port: 9090
+      targetPort: 9090
 
 ---
 apiVersion: apps/v1
@@ -72,13 +72,14 @@ spec:
       - name: setup-container
         image: busybox
         imagePullPolicy: IfNotPresent
-        args: [ "/bin/sh", "-c", "chown 1001:1001 /opt/data" ]
+        args: [ "/bin/sh", "-c", "chown 1001:1001 /data" ]
         volumeMounts:
         - name: data-vol
-          mountPath: /opt/data
+          mountPath: /data
       containers:
       - name: minio-container
-        image: bitnami/minio:2024.1.29
+        #image: bitnami/minio:2023.10.25
+        image: bitnami/minio:2024.2.26
         imagePullPolicy: IfNotPresent
         args:
         - minio
@@ -140,7 +141,7 @@ spec:
             name: minio-svc
             port:
               number: 9000
-  - host: web-192.168.39.214.nip.io
+  - host: web-192.168.39.48.nip.io
     http:
       paths:
       - path: /
