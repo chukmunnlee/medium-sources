@@ -1,0 +1,70 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: minio-es
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  template:
+    metadata:
+      name: minio-es-po
+    serviceAccountName: playground-sa
+  minio:
+    thumbnail:
+      bucket: 
+        name: acme
+      endpoint: minio-svc.playground.svc.cluster.local:9000
+      events:
+      - s3:ObjectCreated:Put
+      - s3:ObjectCreated:Post
+      insecure: true
+      accessKey:
+        name: minio-secret
+        key: accessKey
+      secretKey:
+        name: minio-secret
+        key: secretKey
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: minio-sn
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  dependencies:
+  - name: payload
+    eventSourceName: minio-es
+    eventName: thumbnail
+    transform: 
+      script: |-
+
+        local uploaded_img = event["notification"][1]["s3"]["object"]["key"]
+
+        local terms = {}
+        for w in string.gmatch(uploaded_img, "([^/]+)") do
+          table.insert(terms, w)
+        end
+
+        local img = {}
+        if #terms > 1 then
+          img["directory"] = terms[1]
+          img["imageName"] = terms[2]
+        else
+          img["directory"] = string.sub(terms[1], 1, string.find(terms[1], ".", 1, true) - 1)
+          img["imageName"] = terms[1]
+        end
+        img["dimension"] = "128x128 256x256 512x152 1024x1024"
+
+        event["image"] = img
+
+        return event
+
+  triggers:
+  - template: 
+      name: logging
+      log: 
+        intervalSeconds: 15
+

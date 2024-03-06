@@ -56,7 +56,7 @@ spec:
       resources:
         requests:
           storage: 1Gi
-      storageClassName: standard   
+      storageClassName: standard
   template:
     metadata:
       name: minio-po
@@ -78,8 +78,8 @@ spec:
           mountPath: /data
       containers:
       - name: minio-container
-        #image: bitnami/minio:2023.10.25
-        image: bitnami/minio:2024.2.26
+        image: bitnami/minio:2023.10.25
+        #image: bitnami/minio:2024.2.26
         imagePullPolicy: IfNotPresent
         args:
         - minio
@@ -131,7 +131,7 @@ metadata:
     name: minio-ing
 spec:
   rules:
-  - host: data-192.168.39.214.nip.io
+  - host: data-192.168.39.11.nip.io
     http:
       paths:
       - path: /
@@ -141,7 +141,7 @@ spec:
             name: minio-svc
             port:
               number: 9000
-  - host: web-192.168.39.48.nip.io
+  - host: web-192.168.39.11.nip.io
     http:
       paths:
       - path: /
