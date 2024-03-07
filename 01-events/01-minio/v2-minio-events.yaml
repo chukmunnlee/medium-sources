@@ -1,0 +1,86 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: minio-es
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  template:
+    metadata:
+      name: minio-es-po
+    serviceAccountName: playground-sa
+  minio:
+    thumbnail:
+      bucket: 
+        name: acme
+      endpoint: minio-svc.playground.svc.cluster.local:9000
+      events:
+      - s3:ObjectCreated:Put
+      - s3:ObjectCreated:Post
+      insecure: true
+      accessKey:
+        name: minio-secret
+        key: accessKey
+      secretKey:
+        name: minio-secret
+        key: secretKey
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: minio-sn
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  dependencies:
+  - name: payload
+    eventSourceName: minio-es
+    eventName: thumbnail
+    filters: 
+      exprs:
+      - expr: count > 0
+        fields:
+        - name: count
+          path: notification.#(s3.object.contentType%"image/*")#|#
+
+    transform: 
+      script: |-
+
+        local to_thumbnail = {}
+
+        for i, v in ipairs(event["notification"]) do
+
+          local j = v["s3"]["object"]["key"]
+          local content_type = v["s3"]["object"]["contentType"]
+
+          if content_type:find("^image/") ~= nil then
+
+            local img = {}
+            local dir = string.match(j, "/[^/]*$")
+
+            if dir then
+              img["directory"] = string.sub(j, 1, #j - #dir)
+              img["imageName"] = string.sub(j, #j - #dir + 2, #j)
+            else
+              img["directory"] = string.sub(j, 1, string.find(j, ".", 1, true) - 1)
+              img["imageName"] = j
+            end
+
+            img["dimension"] = "128x128 256x256 512x152 1024x1024"
+
+            table.insert(to_thumbnail, img)
+          end
+        end
+
+        event["images"] = to_thumbnail
+
+        return event
+
+  triggers:
+  - template: 
+      name: logging
+      log: 
+        intervalSeconds: 15
+
