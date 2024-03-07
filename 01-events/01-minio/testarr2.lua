@@ -1,7 +1,6 @@
 local Json = require("json")
 
 local function read_file(path)
-
 	local f = io.open(path, "rb")
 	local jstr = f:read "*a"
 	f:close()

@@ -38,6 +38,20 @@ spec:
   - name: payload
     eventSourceName: minio-es
     eventName: thumbnail
+    filters: 
+      script: |-
+
+        for i, v in ipairs(event["notification"]) do
+
+          local content_type = v["s3"]["object"]["contentType"]
+
+          if content_type:find("^image/") ~= nil then
+            return true
+          end
+
+        end
+        return false
+
     transform: 
       script: |-
 
