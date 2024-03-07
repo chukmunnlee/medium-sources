@@ -87,6 +87,7 @@ spec:
           dataKey: images
         dest: spec.arguments.0.value
       argoWorkflow:
+        operation: submit
         source:
           resource:
             apiVersion: argoproj.io/v1alpha1
