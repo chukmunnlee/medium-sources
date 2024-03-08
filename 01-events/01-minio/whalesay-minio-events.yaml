@@ -74,7 +74,7 @@ spec:
               img["imageName"] = j
             end
 
-            img["dimensions"] = "128x128 256x256 512x152 1024x1024"
+            img["dimension"] = "128x128 256x256 512x152 1024x1024"
 
             table.insert(to_thumbnail, img)
           end
@@ -85,6 +85,10 @@ spec:
         return event
 
   triggers:
+  - template: 
+      name: logging
+      log: 
+        intervalSeconds: 15
   - template: 
       name: thumbnail
       argoWorkflow:
@@ -99,74 +103,23 @@ spec:
             apiVersion: argoproj.io/v1alpha1
             kind: Workflow
             metadata:
-              generateName: script-resize-wf-
+              generateName: container-wf-
+              namespace: playground
             spec:
               serviceAccountName: playground-sa
-              artifactRepositoryRef:
-                key: acme
               arguments:
                 parameters:
-                - name: images
-                  value: []
+                - name: message
+                  value: hello, world
               entrypoint: main
-
               templates:
               - name: main
                 inputs:
                   parameters:
-                  - name: images
-                steps:
-                - - name: resize-image
-                    arguments:
-                      parameters:
-                      - name: directory
-                        value: "{{ item.directory }}"
-                      - name: imageName
-                        value: "{{ item.imageName }}"
-                      - name: dimensions
-                        value: "{{ item.dimensions }}"
-                    template: thumbnail
-                    withParam: "{{ inputs.parameters.images }}"
-
-              - name: thumbnail
-                inputs:
-                  parameters:
-                  - name: directory
-                  - name: imageName
-                  - name: dimensions
-                  artifacts:
-                  - name: image-src
-                    path: /mnt
-                    s3:
-                      key: "{{ inputs.parameters.directory }}"
-                outputs:
-                  artifacts:
-                  - name: storage
-                    path: /mnt/resized
-                    s3:
-                      bucket: foobar
-                      endpoint: minio-svc.playground.svc.cluster.local:9000
-                      key: "{{ inputs.parameters.directory }}/resized/{{ inputs.parameters.imageName }}.tgz"
-                      accessKeySecret:
-                        name: minio-secret
-                        key: accessKey
-                      secretKeySecret:
-                        name: minio-secret
-                        key: secretKey
-                      insecure: true
-                script:
-                  image: vulhub/imagemagick:7.1.0-49
+                  - name: message
+                container: 
+                  image: docker/whalesay 
                   imagePullPolicy: IfNotPresent
-                  workingDir: /mnt
-                  command: [ "/bin/bash" ]
-                  source: |
-                    mkdir -p resized
-                    set "{{ inputs.parameters.dimensions }}"
-                    for IMG_DIM in $*; do 
-                      convert "{{ inputs.parameters.imageName }}" -resize $IMG_DIM "resized/${IMG_DIM}-{{ inputs.parameters.imageName }}" 
-                    done
-
-  - template: 
-      name: logging
-      log: 
-        intervalSeconds: 15
+                  command: [ "cowsay" ]
+                  args:
+                  - "{{ inputs.parameters.message }}"
