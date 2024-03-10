@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dov-deploy
+  namespace: playground
+  labels:
+    app: dov
+    name: dov-bear
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dov
+      name: dov-po
+  template:
+    metadata:
+      name: dov-po
+      labels:
+        app: dov
+        name: dov-po
+    spec:
+      containers:
+      - name: dov-container
+        image: chukmunnlee/dov-bear:v5 
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTANCE_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['pod-template-hash']
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dov-svc
+  namespace: playground
+  labels:
+    app: dov
+    name: dov-svc
+  annotations:
+    autodeploy-ingress-host: dov-192.168.39.185.nip.io
+    autodeploy-ingress-class: nginx
+
+spec:
+  type: ClusterIP
+  selector:
+    app: dov
+    name: dov-po
+  ports:
+  - name: dov-port
+    port: 3000
+    targetPort: 3000
+
+
