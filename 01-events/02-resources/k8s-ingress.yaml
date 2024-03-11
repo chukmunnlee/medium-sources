@@ -17,7 +17,7 @@ spec:
       group: ""
       version: v1
       resource: services
-      eventTypes: [ ADD, DELETE ]
+      eventTypes: [ ADD, DELETE, UPDATE ]
       filter:
         fields:
         - key: metadata.annotations.autodeploy-ingress-host
@@ -42,7 +42,7 @@ spec:
     eventSourceName: ingress-es
     eventName: ingress
     transform:
-      jq: '.operation += if .type == "ADD" then "create" else if .type == "DELETE" then "delete" else "create" end end'
+      jq: '.operation += if .type == "ADD" then "create" else if .type == "DELETE" then "delete" else "update" end end'
 
   triggers:
   - parameters:
