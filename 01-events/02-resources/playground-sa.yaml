@@ -75,4 +75,3 @@ subjects:
 - kind: ServiceAccount
   name: playground-sa
   namespace: playground
-

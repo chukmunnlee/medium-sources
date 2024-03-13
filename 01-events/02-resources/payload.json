@@ -1,0 +1,41 @@
+{
+  "type": "ADD",
+  "body": {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+      "annotations": {
+        "autodeploy-ingress-class": "nginx",
+        "autodeploy-ingress-host": "fortune-192.168.39.152.nip.io"
+		},
+      "labels": {
+        "app": "fortune",
+        "name": "fortune-svc"
+      },
+      "name": "fortune-svc",
+      "namespace": "playground",
+		...
+    },
+    "spec": {
+      "ports": [
+        {
+          "port": 3000,
+          "protocol": "TCP",
+          "targetPort": "fortune-port"
+        }
+      ],
+      "selector": {
+        "app": "fortune",
+        "name": "fortune-po"
+      },
+		...
+    },
+    "status": {
+      "loadBalancer": {}
+    }
+  },
+  "oldBody": null,
+  "group": "",
+  "version": "v1",
+  "resource": "services"
+}
