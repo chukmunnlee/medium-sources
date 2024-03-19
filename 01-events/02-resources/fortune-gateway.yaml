@@ -13,7 +13,7 @@ spec:
     port: 80
     protocol: HTTP
     # 192.168.39.240
-    hostname: "*.192.168.39.240.nip.io"
+    hostname: "*.192.168.39.15.nip.io"
 
 ---
 

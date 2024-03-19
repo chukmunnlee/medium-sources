@@ -46,7 +46,7 @@ metadata:
     app: dov
     name: dov-svc
   annotations:
-    autodeploy-ingress-host: dov-192.168.39.152.nip.io
+    autodeploy-ingress-host: dov-192.168.39.15.nip.io
     autodeploy-ingress-class: nginx
 
 spec:
@@ -56,6 +56,6 @@ spec:
     name: dov-po
   ports:
   - name: dov-port
-    port: 3000
+    port: 5000
     targetPort: 3000
 

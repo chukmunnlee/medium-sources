@@ -38,10 +38,10 @@ metadata:
     app: fortune
     name: fortune-svc
   annotations:
-    autodeploy-ingress-host: fortune-192.168.39.152.nip.io
-    autodeploy-ingress-class: nginx
-    autodeploy-gateway-host: fortune-192.168.39.152.nip.io
-    autodeploy-gateway-class: nginx
+    #autodeploy-ingress-host: fortune-192.168.39.15.nip.io
+    #autodeploy-ingress-class: nginx
+    autodeploy-gateway-host: fortune-192.168.39.15.nip.io
+
 spec:
   type: ClusterIP
   selector:

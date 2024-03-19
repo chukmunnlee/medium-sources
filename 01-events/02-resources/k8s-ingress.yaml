@@ -5,8 +5,8 @@ metadata:
   name: ingress-es
   namespace: playground
 spec:
-  #eventBusName: jetstream-eb
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
+  #eventBusName: kafka-eb
   template:
     serviceAccountName: playground-sa
   resource:
@@ -29,8 +29,8 @@ metadata:
   name: ingress-sn
   namespace: playground
 spec:
-  #eventBusName: jetstream-eb
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
+  #eventBusName: kafka-eb
   template:
     serviceAccountName: playground-sa
   dependencies:
