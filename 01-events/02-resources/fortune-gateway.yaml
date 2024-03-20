@@ -30,7 +30,7 @@ spec:
   - name: corp-gateway
     sectionName: http
   hostnames:
-  - "fortune-gw.192.168.39.240.nip.io"
+  - "fortune-gw.192.168.39.15.nip.io"
   rules:
   - matches:
     - path: 

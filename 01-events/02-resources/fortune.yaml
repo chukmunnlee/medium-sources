@@ -40,7 +40,7 @@ metadata:
   annotations:
     #autodeploy-ingress-host: fortune-192.168.39.15.nip.io
     #autodeploy-ingress-class: nginx
-    autodeploy-gateway-host: fortune-192.168.39.15.nip.io
+    autodeploy-gateway-host: fortune-gw.192.168.39.15.nip.io
 
 spec:
   type: ClusterIP
