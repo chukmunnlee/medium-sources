@@ -5,7 +5,7 @@ metadata:
   name: minio-es
   namespace: playground
 spec:
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
   template:
     metadata:
       labels: 
@@ -23,10 +23,10 @@ spec:
       filter:
         prefix: "thumbnails/"
       accessKey:
-        name: minio-secret
+        name: minio-keys-secret
         key: accessKey
       secretKey:
-        name: minio-secret
+        name: minio-keys-secret
         key: secretKey
 
 ---
@@ -36,7 +36,7 @@ metadata:
   name: minio-sn
   namespace: playground
 spec:
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
   template:
     metadata:
       labels: 
@@ -99,7 +99,7 @@ spec:
             spec:
               serviceAccountName: playground-sa
               artifactRepositoryRef:
-                key: acme
+                key: minio
               arguments:
                 parameters:
                 - name: images
@@ -139,15 +139,17 @@ spec:
                   artifacts:
                   - name: storage
                     path: /mnt/resized
+                    archive:
+                      none: {}
                     s3:
                       bucket: foobar
                       endpoint: minio-svc.playground.svc.cluster.local:9000
-                      key: "{{ inputs.parameters.directory }}/resized/{{ inputs.parameters.imageName }}.tgz"
+                      key: "resized"
                       accessKeySecret:
-                        name: minio-secret
+                        name: minio-keys-secret
                         key: accessKey
                       secretKeySecret:
-                        name: minio-secret
+                        name: minio-keys-secret
                         key: secretKey
                       insecure: true
                 script:

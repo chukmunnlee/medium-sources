@@ -5,7 +5,7 @@ metadata:
   name: minio-es
   namespace: playground
 spec:
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
   template:
     metadata:
       name: minio-es-po
@@ -33,7 +33,7 @@ metadata:
   name: minio-sn
   namespace: playground
 spec:
-  eventBusName: kafka-eb
+  eventBusName: jetstream-eb
   dependencies:
   - name: payload
     eventSourceName: minio-es
