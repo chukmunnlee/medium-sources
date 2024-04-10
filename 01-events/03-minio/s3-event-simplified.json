@@ -1,0 +1,23 @@
+{
+  "notification": [
+    {
+      "eventVersion": "2.0",
+      "eventSource": "minio:s3",
+      ...
+      "s3": {
+        ...
+        "object": {
+          "key": "thumbnails/dilbert_wireless.jpg",
+          "size": 40995,
+          "eTag": "667c4e1d85c6e2d1deb670b498b48712",
+          "contentType": "image/jpeg",
+          "userMetadata": {
+            "content-type": "image/jpeg"
+          },
+          "sequencer": "17C4886599B80462"
+        }
+      },
+      ...
+    }
+  ]
+}

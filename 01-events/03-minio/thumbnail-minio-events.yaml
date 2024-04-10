@@ -159,10 +159,14 @@ spec:
                   command: [ "/bin/bash" ]
                   source: |
                     mkdir -p resized
+                    echo "*** Starting reszing"
                     set "{{ inputs.parameters.dimensions }}"
                     for IMG_DIM in $*; do 
+                      echo "*** Resizing ${IMG_DIM}"
                       convert "{{ inputs.parameters.imageName }}" -resize $IMG_DIM "resized/${IMG_DIM}-{{ inputs.parameters.imageName }}" 
                     done
+                    echo "*** All done"
+                    exit 0
 
   - template: 
       name: logging

@@ -1,0 +1,8 @@
+[
+  { 
+    "directory": "thumbnail",
+    "imageName": "dilbert.gif", 
+    "dimensions": "128x128 256x256 512x512 1024x1024"
+  },
+  ...
+]

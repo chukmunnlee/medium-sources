@@ -4,7 +4,7 @@
       "eventVersion": "2.0",
       "eventSource": "minio:s3",
       "awsRegion": "",
-      "eventTime": "2024-03-05T05:18:04.963Z",
+      "eventTime": "2024-04-09T06:22:08.269Z",
       "eventName": "s3:ObjectCreated:Put",
       "userIdentity": {
         "principalId": "root"
@@ -16,9 +16,9 @@
       },
       "responseElements": {
         "x-amz-id-2": "ba165ad0c59459fd83ebc7728a4793adcb0c451f6daa811b4eaf0e3e94ecfb7c",
-        "x-amz-request-id": "17B9C696E4CD93BA",
-        "x-minio-deployment-id": "f8165f65-30cb-48c3-a2f5-599b220f0eee",
-        "x-minio-origin-endpoint": "http://10.244.0.140:9000"
+        "x-amz-request-id": "17C4886599ADC79A",
+        "x-minio-deployment-id": "737d1820-b516-48a6-bc95-83df164cd64e",
+        "x-minio-origin-endpoint": "http://10.244.0.121:9000"
       },
       "s3": {
         "s3SchemaVersion": "1.0",
@@ -31,20 +31,20 @@
           "arn": "arn:aws:s3:::acme"
         },
         "object": {
-          "key": "view2.png",
-          "size": 90669,
-          "eTag": "e8b7c19a4bd030c04eb7e7867ed4bad5",
-          "contentType": "image/png",
+          "key": "thumbnails/dilbert_wireless.jpg",
+          "size": 40995,
+          "eTag": "667c4e1d85c6e2d1deb670b498b48712",
+          "contentType": "image/jpeg",
           "userMetadata": {
-            "content-type": "image/png"
+            "content-type": "image/jpeg"
           },
-          "sequencer": "17B9C696E4F3AC48"
+          "sequencer": "17C4886599B80462"
         }
       },
       "source": {
         "host": "192.168.39.1",
         "port": "",
-        "userAgent": "MinIO (linux; amd64) minio-go/v7.0.64 MinIO Console/(dev)"
+        "userAgent": "MinIO (linux; amd64) minio-go/v7.0.69 MinIO Console/(dev)"
       }
     }
   ]
