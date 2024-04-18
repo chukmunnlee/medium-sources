@@ -8,7 +8,7 @@ metadata:
     app: fortune
     name: fortune-deploy
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: fortune
@@ -25,8 +25,7 @@ spec:
         image: chukmunnlee/fortune:v2
         imagePullPolicy: IfNotPresent
         ports:
-        - name: fortune-port 
-          containerPort: 3000
+        - containerPort: 3000
 
 ---
 apiVersion: v1
@@ -38,10 +37,9 @@ metadata:
     app: fortune
     name: fortune-svc
   annotations:
-    #autodeploy-ingress-host: fortune-192.168.39.15.nip.io
-    #autodeploy-ingress-class: nginx
-    autodeploy-gateway-host: fortune-gw.192.168.39.15.nip.io
-
+    autodeploy-ingress-host: fortune-192.168.39.169.nip.io
+    autodeploy-ingress-class: nginx
+    autodeploy-gateway-host: fortune.playground.192.168.39.120.nip.io
 spec:
   type: ClusterIP
   selector:
@@ -49,5 +47,5 @@ spec:
     name: fortune-po
   ports:
   - port: 3000
-    targetPort: fortune-port
+    targetPort: 3000
 

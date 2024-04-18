@@ -70,7 +70,7 @@ spec:
   triggers:
   - parameters:
     - src:
-        dependencyName: svc-ingress
+        dependencyName: svc-gateway
         dataKey: operation
       dest: k8s.operation
     template:
@@ -107,8 +107,8 @@ spec:
               namespace: playground
             spec:
               parentRefs:
-              - name: corp-gateway
-                sectionName: http
+              - name: playground-gtw
+                sectionName: playground-http
               hostnames:
               - __WILL_BE_REPLACED__
               rules:
