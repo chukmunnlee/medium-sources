@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-and-deploy-
+  namespace: playground
+spec:
+  arguments:
+    parameters:
+    - name: imageName
+      value: wftmpl-dov-bear
+    - name: revision
+      value: HEAD
+    - name: branch
+      value: master
+    - name: severity
+      value: CRITICAL
+
+  workflowTemplateRef:
+    name: build-container-wftmpl
+  
