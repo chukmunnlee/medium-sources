@@ -44,6 +44,7 @@ metadata:
   namespace: playground
 data:
   github-token: __GITHUB_TOKEN__
+  github-webhook-secret: __GITHUB_WEBHOOK_SECRET__
 
 ---
 ## Keys for signing the image

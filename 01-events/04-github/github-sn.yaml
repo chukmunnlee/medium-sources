@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-sn
+  namespace: playground
+  labels:
+    app: github
+    name: github-sn
+spec:
+  eventBusName: kafka-eb
+  template:
+    metadata:
+      name: github-sn-po
+    serviceAccountName: playground-sa
+  dependencies:
+  - name: github
+    eventSourceName: github-es
+    eventName: dov-bear
+  triggers:
+  - template:
+      name: log
+      log: 
+        intervalSeconds: 15
