@@ -37,7 +37,7 @@ metadata:
     app: fortune
     name: fortune-svc
   annotations:
-    autodeploy-ingress-host: fortune-192.168.39.169.nip.io
+    autodeploy-ingress-host: fortune-192.168.39.87.nip.io
     autodeploy-ingress-class: nginx
     autodeploy-gateway-host: fortune.playground.192.168.39.120.nip.io
 spec:
