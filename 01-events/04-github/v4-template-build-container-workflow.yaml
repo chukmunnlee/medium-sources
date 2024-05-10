@@ -351,7 +351,6 @@ spec:
           -e 's/NEW_IMAGE_NAME/{{ inputs.parameters.imageName }}/' \
           src/manifest/overlay/stage/_kustomization.yaml > src/manifest/overlay/stage/kustomization.yaml
         kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
-        kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
         cd release
         git config --global user.email 'fred@acme.com'
         git config --global user.name 'fred'
