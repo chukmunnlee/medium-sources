@@ -1,0 +1,154 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: wf-kustomize-
+  namespace: playground
+spec:
+
+  serviceAccountName: playground-sa
+
+  artifactRepositoryRef:
+    configMap: artifact-repositories
+    key: minio
+
+  artifactGC:
+    serviceAccountName: playground-sa
+    strategy: OnWorkflowCompletion
+
+  arguments:
+    parameters:
+    - name: imageName
+      value: my-dov-bear
+    - name: revision
+      value: HEAD
+    - name: branch
+      value: master
+    - name: severity
+      #value: HIGH,CRITICAL
+      value: CRITICAL
+    artifacts:
+    - name: dov-src
+      git:
+        repo: https://github.com/chukmunnlee/dov-bear.git
+        depth: 1
+        singleBranch: true
+        revision: "{{ inputs.parameters.revision }}"
+        branch: "{{ inputs.parameters.branch }}"
+    - name: dov-release
+      git:
+        repo: https://github.com/chukmunnlee/dov-bear-release.git
+        depth: 1
+        singleBranch: true
+        branch: master
+
+  entrypoint: main
+  templates:
+  - name: main
+    inputs:
+      parameters:
+      - name: imageName
+      - name: revision
+      - name: branch
+      artifacts:
+      - name: dov-src
+      - name: dov-release
+    dag:
+      tasks:
+      - name: get-short-hash
+        arguments:
+          parameters:
+          - name: revision
+            value: "{{ inputs.parameters.revision }}"
+          artifacts:
+          - name: dov-src
+            from: "{{ inputs.artifacts.dov-src }}"
+            path: /src
+        template: short-hash
+      - name: echo-short-hash
+        arguments:
+          parameters:
+          - name: revision
+            value: "{{ tasks.get-short-hash.outputs.result }}"
+        template: echo-hash
+        dependencies: [ get-short-hash ]
+      - name: generate-manifest
+        arguments:
+          parameters:
+          - name: imageName
+            value: "{{ inputs.parameters.imageName }}"
+          - name: imageSha
+            value: sha256:d0705027217cad6794ac2965c78d2030fc4abfe2999034bbb5714c40cc80a526
+          - name: hash
+            value: "{{ tasks.get-short-hash.outputs.result }}"
+          artifacts:
+          - name: dov-src
+            path: /work/src
+            from: "{{ inputs.artifacts.dov-src }}"
+          - name: dov-release
+            path: /work/release
+            from: "{{ inputs.artifacts.dov-release }}"
+        template: generate-manifest
+        dependencies: [ get-short-hash ]
+
+  # tasks
+  - name: short-hash
+    inputs:
+      parameters:
+      - name: revision
+      artifacts:
+      - name: dov-src
+        path: /src
+    container:
+      image: bitnami/git
+      imagePullPolicy: IfNotPresent
+      workingDir: /src
+      command:
+      - git
+      - rev-parse
+      - --short
+      - "{{ inputs.parameters.revision }}"
+
+  - name: echo-hash
+    inputs:
+      parameters:
+      - name: revision
+    script:
+      image: busybox
+      command: [ '/bin/sh' ]
+      source: |
+        echo "The short code is {{ inputs.parameters.revision }}"
+
+  - name: generate-manifest
+    inputs:
+      parameters:
+      - name: imageName
+      - name: imageSha
+      - name: hash
+      artifacts:
+      - name: dov-src
+        path: /work/src
+      - name: dov-release
+        path: /work/release
+    script:
+      image: chukmunnlee/kustomize:v5.4.1
+      imagePullPolicy: IfNotPresent
+      command: [ '/bin/sh' ]
+      env:
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: github-secret
+            key: github-token
+      source: |
+        sed -e 's/NEW_DIGEST/{{ inputs.parameters.imageSha }}/' \
+          -e 's/NEW_IMAGE_NAME/{{ inputs.parameters.imageName }}/' \
+          src/manifest/overlay/stage/_kustomization.yaml > src/manifest/overlay/stage/kustomization.yaml
+        kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
+        cd release
+        git config --global user.email 'fred@acme.com'
+        git config --global user.name 'fred'
+        git config --global url.https://${GITHUB_TOKEN}@github.com/.insteadOf https://github.com/
+        git add . 
+        git commit -m "Generated for git hash {{ inputs.parameters.hash }} on $(date)"
+        git push origin master
