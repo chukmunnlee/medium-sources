@@ -27,6 +27,8 @@ spec:
     - name: severity
       #value: HIGH,CRITICAL
       value: CRITICAL
+    - name: commitMsg
+      value: ""
     artifacts:
     - name: dov-src
       git:
@@ -43,6 +45,7 @@ spec:
         branch: master
 
   entrypoint: main
+
   templates:
   - name: main
     inputs:
@@ -53,6 +56,8 @@ spec:
       - name: severity
       - name: sarif-file
         value: /tmp/report.sarif
+      - name: commitMsg
+        value: ""
       artifacts:
       - name: dov-src
       - name: dov-release
@@ -146,6 +151,8 @@ spec:
             value: "{{ tasks.get-sha-digest.outputs.result }}"
           - name: hash
             value: "{{ tasks.get-short-hash.outputs.result }}"
+          - name: commitMsg
+            value: "{{ inputs.parameters.commitMsg }}"
           artifacts:
           - name: dov-src
             path: /work/src
@@ -331,6 +338,7 @@ spec:
       - name: imageName
       - name: imageSha
       - name: hash
+      - name: commitMsg
       artifacts:
       - name: dov-src
         path: /work/src
@@ -347,8 +355,9 @@ spec:
             name: github-secret
             key: github-token
       source: |
-        sed -e 's/NEW_DIGEST/{{ inputs.parameters.imageSha }}/' \
-          -e 's/NEW_IMAGE_NAME/{{ inputs.parameters.imageName }}/' \
+        sed -e 's/__NEW_DIGEST__/{{ inputs.parameters.imageSha }}/' \
+          -e 's/__NEW_IMAGE_NAME__/{{ inputs.parameters.imageName }}/' \
+          -e 's/__COMMIT_HASH__/{{ inputs.parameters.hash }}/' \
           src/manifest/overlay/stage/_kustomization.yaml > src/manifest/overlay/stage/kustomization.yaml
         kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
         cd release
@@ -356,5 +365,5 @@ spec:
         git config --global user.name 'fred'
         git config --global url.https://${GITHUB_TOKEN}@github.com/.insteadOf https://github.com/
         git add . 
-        git commit -m "Generated for git hash {{ inputs.parameters.hash }} on $(date)"
+        git commit -m "Generated from commit {{ inputs.parameters.hash }} on $(date) {{ inputs.parameters.commitMsg }}"
         git push origin master

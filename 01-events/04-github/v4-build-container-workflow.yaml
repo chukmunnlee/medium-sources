@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-container-
+  namespace: playground
+spec:
+  arguments:
+    parameters:
+    - name: branch 
+      value: release/v1
+    - name: revision 
+      value: HEAD
+    - name: commitMsg 
+      value: "this is a test message"
+
+  workflowTemplateRef:
+    name: build-container-wftmpl

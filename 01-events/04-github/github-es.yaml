@@ -32,6 +32,8 @@ spec:
       - push
       active: true
       insecure: false
+      filter:
+        expression: "(null != body.head_commit) && (indexOf(body.head_commit.message, '#NORUN') == -1) && hasPrefix(body.ref, 'refs/heads/release/')"
 
 ---
 apiVersion: v1
