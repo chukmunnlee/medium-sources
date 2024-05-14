@@ -359,11 +359,12 @@ spec:
           -e 's/__NEW_IMAGE_NAME__/{{ inputs.parameters.imageName }}/' \
           -e 's/__COMMIT_HASH__/{{ inputs.parameters.hash }}/' \
           src/manifest/overlay/stage/_kustomization.yaml > src/manifest/overlay/stage/kustomization.yaml
+        cp -r src/manifest release
         kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
         cd release
         git config --global user.email 'fred@acme.com'
         git config --global user.name 'fred'
         git config --global url.https://${GITHUB_TOKEN}@github.com/.insteadOf https://github.com/
         git add . 
-        git commit -m "Generated from commit {{ inputs.parameters.hash }} on $(date) {{ inputs.parameters.commitMsg }}"
+        git commit -m "Generated from commit {{ inputs.parameters.hash }} on $(date) - {{ inputs.parameters.commitMsg }}"
         git push origin master
