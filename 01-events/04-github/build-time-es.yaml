@@ -1,0 +1,17 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: build-time-es
+  namespace: playground
+spec:
+  eventBusName: kafka-eb
+  template:
+    metadata:
+      name: built-time-es-po
+    serviceAccountName: playground-sa
+
+  calendar:
+    build-time:
+      schedule: "0 17 * * *"
+

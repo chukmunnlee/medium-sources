@@ -358,9 +358,9 @@ spec:
         sed -e 's/__NEW_DIGEST__/{{ inputs.parameters.imageSha }}/' \
           -e 's/__NEW_IMAGE_NAME__/{{ inputs.parameters.imageName }}/' \
           -e 's/__COMMIT_HASH__/{{ inputs.parameters.hash }}/' \
-          src/manifest/overlay/stage/_kustomization.yaml > src/manifest/overlay/stage/kustomization.yaml
+          src/manifest/overlays/stage/_kustomization.yaml > src/manifest/overlays/stage/kustomization.yaml
         cp -r src/manifest release
-        kustomize build -o release/dov-bear.yaml src/manifest/overlay/stage
+        kustomize build -o release/dov-bear.yaml src/manifest/overlays/stage
         cd release
         git config --global user.email 'fred@acme.com'
         git config --global user.name 'fred'

@@ -17,6 +17,7 @@ spec:
   - name: github
     eventSourceName: github-es
     eventName: dov-bear
+
   triggers:
   - template:
       name: build-container
