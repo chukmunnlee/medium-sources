@@ -142,7 +142,7 @@ metadata:
     name: minio-ing
 spec:
   rules:
-  - host: data-minio.192.168.39.87.nip.io
+  - host: data-minio.192.168.39.202.nip.io
     http:
       paths:
       - path: /
@@ -152,7 +152,7 @@ spec:
             name: minio-svc
             port:
               number: 9000
-  - host: web-minio.192.168.39.87.nip.io
+  - host: web-minio.192.168.39.202.nip.io
     http:
       paths:
       - path: /

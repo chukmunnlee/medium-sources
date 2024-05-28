@@ -68,6 +68,8 @@ tunnelRef:
   name: cf-tunnel
 subjects:
 - kind: Service
-  name: github
+  name: github-es-svc
   spec:
     target: http://github-es-svc.playground.svc.cluster.local:13000
+    fqdn: github.chuklee.com
+    protocol: https

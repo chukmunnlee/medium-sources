@@ -13,3 +13,4 @@ spec:
     domain: __DOMAIN__
     secret: cloudflare-secrets
     accountId: __CF_ACCOUNT_ID__
+  image: cloudflare/cloudflared:2024.5.0
