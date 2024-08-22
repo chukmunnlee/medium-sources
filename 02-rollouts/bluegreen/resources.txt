@@ -1,0 +1,3 @@
+Notifications
+	https://argo-rollouts.readthedocs.io/en/stable/features/notifications/
+	https://argo-rollouts.readthedocs.io/en/stable/generated/notification-services/overview/

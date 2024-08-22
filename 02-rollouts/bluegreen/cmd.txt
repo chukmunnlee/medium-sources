@@ -1,0 +1,18 @@
+Display rollouts
+	k argo ro list rollouts -A
+	k argo ro list ro api-ro -napi-ns
+	k argo ro list ro @latest -napi-ns
+
+List rollout
+	k argo ro get ro api-ro -napi-ns
+	k get svc -napi-ns -ocustom-columns="NAME:metadata.name, SELECTORS:.spec.selector"
+
+Change image
+	k argo ro set image api-ro api-container=chukmunnlee/fake-api:v2
+
+Promote a rollout
+	k argo ro promote api-ro -napi-no
+
+Undo rollout
+	k argo ro undo api-ro -napi-no --to-revision=1
+

@@ -1,0 +1,34 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: api-ro
+  namespace: api-ns
+  labels:
+    name: api-ro
+    app: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: api-po
+      app: api
+  strategy:
+    blueGreen:
+      activeService: api-svc
+      previewService: preview-api-svc
+      autoPromotionEnabled: false
+  template:
+    metadata:
+      labels:
+        name: api-po
+        app: api
+        version: v2
+    spec:
+      containers:
+      - name: api-container
+        image: chukmunnlee/fake-api:v2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+
