@@ -33,6 +33,7 @@ spec:
         - containerPort: 3000
 
 ---
+# The mainw service for the Blue deployment
 apiVersion: v1
 kind: Service
 metadata:
@@ -51,6 +52,7 @@ spec:
     targetPort: 3000
 
 ---
+# The preview service for the Green deployment
 apiVersion: v1
 kind: Service
 metadata:
@@ -67,7 +69,4 @@ spec:
   ports:
   - port: 3000
     targetPort: 3000
-
-
-
 
