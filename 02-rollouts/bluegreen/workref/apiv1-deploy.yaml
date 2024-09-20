@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deploy
+  namespace: api-ns
+  labels:
+    name: api-deploy
+    app: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: api-po
+      app: api
+  template:
+    metadata:
+      labels:
+        name: api-po
+        app: api
+        version: v1
+    spec:
+      containers:
+      - name: api-container
+        image: chukmunnlee/fake-api:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000

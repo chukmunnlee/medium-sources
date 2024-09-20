@@ -33,7 +33,7 @@ spec:
         - containerPort: 3000
 
 ---
-# The mainw service for the Blue deployment
+# The main service for the Blue deployment
 apiVersion: v1
 kind: Service
 metadata:
@@ -59,7 +59,7 @@ metadata:
   name: preview-api-svc
   namespace: api-ns
   labels:
-    name: api-svc
+    name: preview-api-svc
     app: api
 spec:
   type: ClusterIP
@@ -70,3 +70,26 @@ spec:
   - port: 3000
     targetPort: 3000
 
+---
+# Ingress for accessing the main service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ing
+  namespace: api-ns
+  labels:
+    name: api-ing
+    app: api
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.192.168.39.223.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-svc
+            port:
+              number: 3000
