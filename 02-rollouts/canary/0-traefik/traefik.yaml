@@ -1,0 +1,16 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-ingressroute
+  namespace: api-ns
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule 
+    match: PathPrefix(`/api/`) && Header(`X-Token`, `abc123`)
+    syntax: v3
+    services:
+    - name: api-svc
+      port: 3000
