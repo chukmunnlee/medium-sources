@@ -102,6 +102,7 @@ spec:
   selector:
     app: api
     name: api-po
+    version: v2
   ports:
   - port: 3000
     targetPort: 3000
@@ -162,8 +163,8 @@ metadata:
     app: api
     name: api-ing
   annotations:
-    nginx.ingress.kubernetes.io/canary: true
-    nginx.ingress.kubernetes.io/canary-weight: 25%
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "25"
 spec:
   ingressClassName: nginx
   rules:
