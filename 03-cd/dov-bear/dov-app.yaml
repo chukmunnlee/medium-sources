@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dov-app 
+  namespace: argocd
+  labels:
+    app: dov
+    name: dov-app 
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chukmunnlee/dov-bear-release.git
+    targetRevision: HEAD
+    path: manifest/overlays/stage
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dov
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+
