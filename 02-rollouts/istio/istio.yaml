@@ -1,0 +1,76 @@
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: api-percentage
+  namespace: api
+  labels:
+    app: api
+    name: api-vs
+spec:
+  hosts:
+  - percentage.192.168.39.155.nip.io
+  gateways:
+  - api-gw
+  http:
+  - name: api-percentage
+    route:
+    - destination:
+        host: apiv1-svc
+      weight: 75
+    - destination:
+        host: apiv2-svc
+      weight: 25
+
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: api-attribute
+  namespace: api
+  labels:
+    app: api
+    name: api-vs
+spec:
+  hosts:
+  - attribute.192.168.39.155.nip.io
+  gateways:
+  - api-gw
+  http:
+  - name: api-attribute-v2
+    match:
+    - headers:
+        x-version:
+          prefix: v2
+    route:
+    - destination:
+        host: apiv2-svc
+  - name: api-attribute
+    route:
+    - destination:
+        host: apiv1-svc
+
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: api-mirror
+  namespace: api
+  labels:
+    app: api
+    name: api-vs
+spec:
+  hosts:
+  - mirror.192.168.39.155.nip.io
+  gateways:
+  - api-gw
+  http:
+  - name: api-mirror
+    route:
+    - destination:
+        host: apiv1-svc
+      weight: 100
+    mirror:
+      host: apiv2-svc
+    mirrorPercentage: 
+      value: 100

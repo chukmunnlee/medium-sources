@@ -59,14 +59,14 @@ spec:
 
   strategy:
     canary:
-      maxSurge: 50%
+      maxSurge: 30%
       maxUnavailable: 0
       stableService: api-svc
       canaryService: canary-api-svc
       steps:
       - setCanaryScale:
           weight: 25
-      - setWeight: 50
+      - setWeight: 25
       - pause: {}
       trafficRouting:
         istio:

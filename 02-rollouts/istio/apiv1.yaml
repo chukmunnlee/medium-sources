@@ -6,7 +6,7 @@ metadata:
   labels:
     name: apiv1-deploy
     app: api
-  namespace: api-ns
+  namespace: api
 spec:
   replicas: 3
   selector:
@@ -35,7 +35,7 @@ metadata:
   labels:
     name: apiv1-svc
     app: api
-  namespace: api-ns
+  namespace: api
 spec:
   selector:
     name: apiv1-po

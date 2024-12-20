@@ -20,7 +20,7 @@ spec:
       number: 80
       protocol: HTTP
     hosts:
-    - api-192.168.39.35.nip.io
+    - api-192.168.39.155.nip.io
     tls:
       httpsRedirect: false
 
@@ -34,7 +34,7 @@ spec:
   gateways:
   - api/api-gw
   hosts:
-  - api-192.168.39.35.nip.io
+  - api-192.168.39.155.nip.io
   http:
   - name: api-svc
     route:
