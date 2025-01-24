@@ -59,7 +59,7 @@ spec:
   - name: traefik-gateway
     namespace: traefik
   hostnames:
-  - api-192.168.39.130.nip.io
+  - api-192.168.39.65.nip.io
   rules:
   - matches:
     - path:
