@@ -21,7 +21,7 @@ spec:
       namespace: traefik
       sectionName: web
   hostnames:
-  - api-192.168.39.195.nip.io
+  - api-192.168.39.50.nip.io
   rules:
   - matches:
     - path:
@@ -29,6 +29,8 @@ spec:
         type: PathPrefix
     backendRefs:
     - name: api-svc
+      port: 3000
+    - name: canary-api-svc
       port: 3000
     filters:
     - type: ResponseHeaderModifier
