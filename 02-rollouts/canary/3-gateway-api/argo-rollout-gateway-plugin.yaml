@@ -24,6 +24,7 @@ rules:
     - get
     - patch
     - update
+    #
 # creates argo-gatewayapi-configmap in namespaces
 - apiGroups:
   - ""
@@ -48,3 +49,4 @@ subjects:
   - namespace: argo-rollouts
     kind: ServiceAccount
     name: argo-rollouts
+
