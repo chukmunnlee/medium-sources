@@ -25,7 +25,7 @@ spec:
   rules:
   - matches:
     - path:
-        value: /
+        value: /v1
         type: PathPrefix
     backendRefs:
     - name: api-svc
@@ -33,15 +33,20 @@ spec:
     - name: canary-api-svc
       port: 3000
     filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
     - type: ResponseHeaderModifier
       responseHeaderModifier:
         add:
-        - name: X-API
-          value: api
+        - name: Access-Control-Allow-Origin
+          value: "*"
+        remove:
+        - X-Powered-By
     - type: ExtensionRef
       extensionRef:
         group: traefik.io
         kind: Middleware
         name: ratelimit-5rps
-
-
