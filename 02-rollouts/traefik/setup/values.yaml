@@ -12,10 +12,10 @@ logs:
   access:
     enabled: true
 
-# enable Gateway
 providers:
   kubernetesIngress:
     enabled: true
+  # enable Gateway
   kubernetesGateway:
    enabled: true
 
