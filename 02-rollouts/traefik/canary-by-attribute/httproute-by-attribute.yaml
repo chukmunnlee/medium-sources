@@ -48,3 +48,28 @@ spec:
         group: traefik.io
         kind: Middleware
         name: ratelimit-10rps
+
+  - matches:
+    - path:
+        value: /api/v1
+        type: PathPrefix
+      headers:
+      - type: Exact
+        name: X-Version
+        value: v2
+    backendRefs:
+    - name: canary-api-svc
+      port: 3000
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /api
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: Access-Control-Allow-Origin
+          value: "*"
+        remove:
+        - X-Powered-By

@@ -30,6 +30,10 @@ spec:
     backendRefs:
     - name: api-svc
       port: 3000
+      weight: 75
+    - name: canary-api-svc
+      port: 3000
+      weight: 25
     filters:
     - type: URLRewrite
       urlRewrite:

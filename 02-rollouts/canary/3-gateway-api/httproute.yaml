@@ -2,7 +2,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: ratelimit-5rps
+  name: ratelimit-10rps
   namespace: api
 spec:
   rateLimit:
@@ -21,11 +21,11 @@ spec:
       namespace: traefik
       sectionName: web
   hostnames:
-  - api-192.168.39.210.nip.io
+  - api-192.168.39.200.nip.io
   rules:
   - matches:
     - path:
-        value: /v1
+        value: /api/v1
         type: PathPrefix
     backendRefs:
     - name: api-svc
@@ -37,7 +37,7 @@ spec:
       urlRewrite:
         path:
           type: ReplacePrefixMatch
-          replacePrefixMatch: /
+          replacePrefixMatch: /api
     - type: ResponseHeaderModifier
       responseHeaderModifier:
         add:
@@ -49,4 +49,4 @@ spec:
       extensionRef:
         group: traefik.io
         kind: Middleware
-        name: ratelimit-5rps
+        name: ratelimit-10rps

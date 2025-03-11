@@ -28,7 +28,9 @@ spec:
         value: /api/v1
         type: PathPrefix
     backendRefs:
-    - name: api-svc
+    - group: "" 
+      kind: Service
+      name: api-svc
       port: 3000
     filters:
     - type: URLRewrite
