@@ -1,0 +1,73 @@
+Name:         api-httproute
+Namespace:    api
+Labels:       <none>
+Annotations:  <none>
+API Version:  gateway.networking.k8s.io/v1
+Kind:         HTTPRoute
+Metadata:
+  Creation Timestamp:  2025-03-19T02:37:42Z
+  Generation:          5
+  Resource Version:    279198
+  UID:                 a8a0e15b-c158-43fe-8452-c67c63bbb191
+Spec:
+  Hostnames:
+    api-192.168.39.200.nip.io
+  Parent Refs:
+    Group:         gateway.networking.k8s.io
+    Kind:          Gateway
+    Name:          traefik-gateway
+    Namespace:     traefik
+    Section Name:  web
+  Rules:
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    api-svc
+      Port:    3000
+      Weight:  99
+      Group:   
+      Kind:    Service
+      Name:    canary-api-svc
+      Port:    3000
+      Weight:  1
+    Matches:
+      Path:
+        Type:   PathPrefix
+        Value:  /
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    canary-api-svc
+      Port:    3000
+      Weight:  1
+    Matches:
+      Headers:
+        Name:   X-Version
+        Type:   Exact
+        Value:  v2
+      Path:
+        Type:   PathPrefix
+        Value:  /
+Status:
+  Parents:
+    Conditions:
+      Last Transition Time:  2025-03-19T02:40:07Z
+      Message:               
+      Observed Generation:   5
+      Reason:                Accepted
+      Status:                True
+      Type:                  Accepted
+      Last Transition Time:  2025-03-19T02:40:07Z
+      Message:               
+      Observed Generation:   5
+      Reason:                ResolvedRefs
+      Status:                True
+      Type:                  ResolvedRefs
+    Controller Name:         traefik.io/gateway-controller
+    Parent Ref:
+      Group:         gateway.networking.k8s.io
+      Kind:          Gateway
+      Name:          traefik-gateway
+      Namespace:     traefik
+      Section Name:  web
+Events:              <none>
