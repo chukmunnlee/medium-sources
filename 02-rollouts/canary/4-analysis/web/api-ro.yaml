@@ -4,9 +4,6 @@ kind: Rollout
 metadata:
   name: api-ro
   namespace: api
-  labels:
-    app: api
-    name: api-deploy
 spec:
   replicas: 4
   selector:
@@ -17,18 +14,36 @@ spec:
     canary:
       stableService: api-svc
       canaryService: canary-api-svc
+      canaryMetadata:
+        labels:
+          role: canary
+      stableMetadata:
+        labels:
+          role: stable
       maxSurge: 25%
-      maxUnavailable: 0
+      maxUnavailable: 1
       steps:
       - setCanaryScale:
           weight: 25
+      - setWeight: 1
       - setHeaderRoute:
           name: api-httproute-canary
           match:
           - headerName: X-Version
             headerValue:
               exact: v2
-      - pause: {}
+      - pause: { duration: 30s }
+      - analysis:
+          templates: 
+          - templateName: web-analysis 
+          args:
+          - name: url
+            value: "http://api-192.168.39.200.nip.io/api/data"
+          - name: header
+            value: "X-Version"
+          - name: value
+            value: "v2"
+
       trafficRouting:
         managedRoutes:
         - name: api-httproute-canary
@@ -46,7 +61,7 @@ spec:
       containers:
       - name: api-container
         image: chukmunnlee/fake-api:v1
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
-        - containerPort: 3000
-
+        - name: api-port
+          containerPort: 3000
