@@ -59,6 +59,8 @@ spec:
   selector:
     matchLabels:
       app: api
+  podTargetLabels:
+  - role
   endpoints:
   - targetPort: 9464
     path: /metrics
