@@ -26,17 +26,18 @@ spec:
       - setCanaryScale:
           weight: 50
       - setWeight: 25
-      - pause: { duration: 30s }
-      - analysis:
-          templates:
-          - templateName: canary-success-rate
-          args:
-          - name: pod_count 
-            value: "2"
-          - name: job_name
-            value: api
-          - name: service_name
-            value: canary-api-svc
+      - pause: {}
+      #- pause: { duration: 30s }
+      #- analysis:
+      #    templates:
+      #    - templateName: canary-success-rate
+      #    args:
+      #    - name: pod_count 
+      #      value: "2"
+      #    - name: job_name
+      #      value: api
+      #    - name: service_name
+      #      value: canary-api-svc
 
       trafficRouting:
         plugins:
@@ -54,6 +55,10 @@ spec:
         image: chukmunnlee/fake-api:v1-otel
         imagePullPolicy: Always
         livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          failureThreshold: 3
+          successThreshold: 1
           httpGet:
             port: 3000
             path: /healthz

@@ -1,0 +1,11 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: true
+    serviceMonitorSelector: 
+      matchLabels:
+        metrics: scrape
+
+    podMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelector: 
+      matchLabels:
+        metrics: scrape
