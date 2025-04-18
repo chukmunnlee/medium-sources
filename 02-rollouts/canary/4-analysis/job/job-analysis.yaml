@@ -1,19 +1,51 @@
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gen-load-cm
+  namespace: api
+data:
+  gen-load.sh: |
+    #!/bin/sh
+    HEADER="${1}"
+    URL="${2:-http://localhost:3000/api/data}"
+    EXP_AVAIL="${3:-99}"
+    DUR="${4:-30s}"
+
+    echo "DURATION=${DUR}\nURL=${URL}\nEXPECTED_AVAIL=${EXP_AVAIL}"
+
+    AVAIL="$(siege -c2 --delay=5 --time=${DUR} -H ${HEADER} ${URL} | jq '.availability')"
+    echo "AVAILABILITY = ${AVAIL}"
+    IFS="."
+    set $AVAIL
+    IFS=" "
+    if [ "$1" -ge "${EXP_AVAIL}" ]; then
+      exit 0
+    else
+      exit 1
+    fi
+
+---
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
-  name: curl-header
+  name: siege-header
   namespace: api
 spec:
   args:
   - name: predicate
   - name: url
   - name: failureLimit
-    value: "2"
+    value: "1"
   - name: count
-    value: "3"
+    value: "1"
   - name: interval
     value: 10s
+  - name: url
+  - name: duration 
+    value: 30
+  - name: availability
+    value: "99"
   metrics:
   - name: success
     count: "{{ args.count }}"
@@ -23,14 +55,25 @@ spec:
       job:
         spec:
           backoffLimit: 2
+          volumes:
+          - name: scripts
+            configMap:
+              name: gen-load-cm
           template:
             spec:
               restartPolicy: Never
               containers:
-              - name: netshoot
-                image: nicolaka/netshoot
+              - name: siege
+                image: chukmunnlee/siege:debian-siege-4.1.7
                 imagePullPolicy: IfNotPresent
                 command:
                 - /bin/sh
-                - -c
-                - "curl -H {{ args.predicate }} {{ args.url }} || exit 1"
+                - /opt/bin/gen-load.sh
+                - "{{ args.predicate }}"
+                - "{{ args.url }}"
+                - "{{ args.availability }}"
+                - "{{ args.duration }}"
+                volumeMounts:
+                - name: gen-load-cm
+                  mountPath: /opt/bin
+                  readOnly: true

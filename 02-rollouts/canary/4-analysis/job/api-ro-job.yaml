@@ -35,16 +35,12 @@ spec:
       - pause: { duration: 30s }
       - analysis:
           templates: 
-          - templateName: curl-header 
+          - templateName: siege-header 
           args:
           - name: predicate
             value: "X-Version: v2"
           - name: url
             value: "http://api-192.168.39.200.nip.io/api/data"
-          - name: count
-            value: "5"
-          - name: failureLimit
-            value: "3"
 
       trafficRouting:
         managedRoutes:
