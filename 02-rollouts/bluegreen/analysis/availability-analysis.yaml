@@ -38,11 +38,17 @@ metadata:
     name: availability-analysis
 spec:
   args:
+  - name: job_name
+  - name: service_name
   - name: url
   - name: duration
-    value: "30s"
+    value: 5m
   - name: expectedAvailabiliy
     value: "99"
+  - name: percentile
+    value: ".99"
+  - name: latency
+    value: "5"
   metrics:
   - name: availability
     provider:
@@ -73,5 +79,3 @@ spec:
                   mountPath: /opt/scripts
                   readOnly: true
               restartPolicy: Never
-
-            

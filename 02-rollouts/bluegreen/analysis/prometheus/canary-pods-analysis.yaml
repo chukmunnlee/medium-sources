@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: canary-success-rate
+  namespace: api
+spec:
+  args:
+  - name: pod_count
+    value: "1"
+  - name: job_name
+  - name: service_name
+  metrics:
+  - name: number_of_pods
+    interval: 30s
+    failureLimit: 3
+    count: 5
+    successCondition: result[0] == 1
+    provider:
+      prometheus:
+        address: http://prometheus-operated.monitoring.svc.cluster.local:9090
+        # sum by(job) (up{job="api", service="api-svc"}) >=bool 4
+        query: |
+          sum by(job) (up{job="{{args.job_name}}", service="{{args.service_name}}", role="canary"}) >= bool {{args.pod_count}}
+

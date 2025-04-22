@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: web-analysis
+  namespace: api
+spec:
+  args:
+  - name: url
+  - name: value
+  metrics:
+  - name: success
+    successCondition: result == "{{ args.value }}"
+    provider:
+      web:
+        url: "{{ args.url }}"
+        jsonPath: "{$.version}"
+        timeoutSeconds: 5
+

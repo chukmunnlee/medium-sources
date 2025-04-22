@@ -22,9 +22,11 @@ spec:
       prePromotionAnalysis:
         args:
         - name: url
-          value: 'http://preview-api-svc:3000/api/data'
+          value: 'http://preview-api-svc.api.svc.cluster.local:3000/api/data'
+        - name: value
+          value: 'v2'
         templates:
-        - templateName: availability-analysis
+        - templateName: web-analysis
   template:
     metadata:
       labels:

@@ -12,16 +12,17 @@ metadata:
   namespace: api
   labels:
     app: api
+    name: api-svc
 spec:
   type: ClusterIP
   selector:
     app: api
     name: api-po
   ports:
-  - name: api-port
+  - name: http 
     port: 3000
     targetPort: 3000
-  - name: metrics
+  - name: metrics 
     port: 9464
     targetPort: 9464
 
@@ -29,48 +30,43 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: canary-api-svc
+  name: preview-api-svc
   namespace: api
   labels:
     app: api
+    name: preview-api-svc
 spec:
   type: ClusterIP
   selector:
     app: api
     name: api-po
   ports:
-  - name: api-port
+  - name: http 
     port: 3000
     targetPort: 3000
-  - name: metrics
+  - name: metrics 
     port: 9464
     targetPort: 9464
 
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: api-httproute
+  name: api-ing
   namespace: api
-  labels:
-    app: api
 spec:
-  parentRefs:
-  - name: traefik-gateway
-    namespace: traefik
-    sectionName: web
-  hostnames:
-  - api-192.168.39.200.nip.io
+  ingressClassName: traefik
   rules:
-    - matches:
-      - path:
-          value: /api
-          type: PathPrefix
-      backendRefs:
-      - name: api-svc
-        port: 3000
-      - name: canary-api-svc
-        port: 3000
+  - host: api-192.168.39.200.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-svc
+            port:
+              number: 3000
 
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -85,7 +81,10 @@ spec:
   selector:
     matchLabels:
       app: api
+  podTargetLabels:
+  - name
   endpoints:
   - port: metrics
     path: /metrics
     interval: 30s
+

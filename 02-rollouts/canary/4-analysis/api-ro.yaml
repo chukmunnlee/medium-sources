@@ -14,35 +14,49 @@ spec:
     canary:
       stableService: api-svc
       canaryService: canary-api-svc
-      canaryMetadata:
-        labels:
-          role: canary
-      stableMetadata:
-        labels:
-          role: stable
       maxSurge: 25%
       maxUnavailable: 1
       steps:
       - setCanaryScale:
-          weight: 50
-      - setWeight: 25
-      - pause: {}
-      #- pause: { duration: 30s }
-      #- analysis:
-      #    templates:
-      #    - templateName: canary-success-rate
-      #    args:
-      #    - name: pod_count 
-      #      value: "2"
-      #    - name: job_name
-      #      value: api
-      #    - name: service_name
-      #      value: canary-api-svc
+          weight: 25
+      - setWeight: 1
+      - setHeaderRoute:
+          name: canary
+          match:
+          - headerName: X-Version
+            headerValue:
+              exact: 'v2'
+      - pause: { duration: 30s }
+      - analysis:
+          templates:
+          - templateName: availability-analysis
+          args:
+          - name: url 
+            value: "http://api-192.168.39.200.nip.io/api/data"
+          - name: canaryHeader
+            value: "X-Version"
+          - name: canaryValue
+            value: "v2"
+          - name: duration
+            value: 6m
+      - analysis:
+          templates:
+          - templateName: request-latency-analysis
+          args:
+          - name: jobName 
+            value: api
+          - name: serviceName
+            value: "canary-api-svc"
+          - name: latency
+            value: "5"
 
       trafficRouting:
+        managedRoutes:
+        - name: canary
         plugins:
           argoproj-labs/gatewayAPI:
             httpRoute: api-httproute
+            useHeaderRoutes: true
             namespace: api
   template:
     metadata:
