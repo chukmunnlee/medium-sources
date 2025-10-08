@@ -4,8 +4,11 @@ kind: Rollout
 metadata:
   name: api-ro
   namespace: api-ns
+  annotations:
+    notifications.argoproj.io/subscribe.on-rollout-completed.slack: general
+
 spec:
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels:
       app: api
@@ -30,9 +33,10 @@ spec:
         - name: api-canary
         plugins:
           argoproj-labs/gatewayAPI:
-            httpRoute: api-httproute
+            httpRoutes:
+            - name: api-httproute
+              useHeaderRoutes: true
             namespace: api-ns
-            useHeaderRoutes: true
   template:
     metadata:
       labels:

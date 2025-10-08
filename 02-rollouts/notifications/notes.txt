@@ -1,0 +1,7 @@
+  See create slack app https://argo-rollouts.readthedocs.io/en/stable/generated/notification-services/slack/
+
+  Argo rollout controller will automatically reload when argo-rollouts-notification-configmap|secret is deploy
+
+  Goto to slack channel and invite
+    /invite @<app_name>
+
