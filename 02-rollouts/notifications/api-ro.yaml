@@ -33,9 +33,8 @@ spec:
         - name: api-canary
         plugins:
           argoproj-labs/gatewayAPI:
-            httpRoutes:
+            httpRoutes: 
             - name: api-httproute
-              useHeaderRoutes: true
             namespace: api-ns
   template:
     metadata:
