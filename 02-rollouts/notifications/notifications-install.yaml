@@ -1,5 +1,10 @@
 # This is an auto-generated file. DO NOT EDIT
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-rollouts-notification-configmap
+  namespace: argo-rollouts
+
 data:
   service.slack: |
     token: $slack-token
@@ -272,7 +277,3 @@ data:
     - send: [rollout-updated]
   trigger.on-scaling-replica-set: |
     - send: [scaling-replicaset]
-kind: ConfigMap
-metadata:
-  name: argo-rollouts-notification-configmap
-  namespace: argo-rollouts

@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: api-ro
-  namespace: api
+  namespace: api-ns
   labels:
     app: api
     name: api-deploy
@@ -36,7 +36,7 @@ spec:
           argoproj-labs/gatewayAPI:
             httpRoute: api-httproute
             useHeaderRoutes: true
-            namespace: api
+            namespace: api-ns
   template:
     metadata:
       labels:
