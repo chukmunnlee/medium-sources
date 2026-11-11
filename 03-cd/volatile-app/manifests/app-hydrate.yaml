@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: volatile-app
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
+spec:
+  project: default
+  sourceHydrator:
+    drySource:
+      repoURL: https://github.com/chukmunnlee/volatile-app.git
+      path: overlays/dev
+      targetRevision: HEAD
+      kustomize:
+        namespace: medium
+    syncSource:
+      targetBranch: release
+      path: hydrated
+
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    - PruneLast=true
+

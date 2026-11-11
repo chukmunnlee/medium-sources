@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app
+  labels:
+    attach: yes
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: volatile-app
+  namespace: app
+spec:
+  type: ClusterIP
+  selector:
+    app: volatile-app
+  ports:
+  - port: 5000
+    targetPort: app-port
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: preview-volatile-app
+  namespace: app
+spec:
+  type: ClusterIP
+  selector:
+    app: volatile-app
+  ports:
+  - port: 5000
+    targetPort: app-port
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: volatile-app-ro
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      &pod-labels
+      app: volatile-app
+  strategy:
+    blueGreen:
+      activeService: volatile-app
+      previewService: preview-volatile-app
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+  template:
+    metadata:
+      labels:
+        <<: *pod-labels
+    spec:
+      containers:
+      - name: volatile-app
+        image: chukmunnlee/volatile-app:1.0.0
+        env:
+        - name: PORT
+          value: '5000'
+        ports:
+        - name: app-port
+          containerPort: 5000
+          protocol: TCP
