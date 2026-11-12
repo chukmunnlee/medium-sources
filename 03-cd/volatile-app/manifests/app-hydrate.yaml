@@ -18,6 +18,8 @@ spec:
     syncSource:
       targetBranch: release
       path: hydrated
+    hydrateTo:
+      targetBranch: pre-release
 
   destination:
     server: https://kubernetes.default.svc
